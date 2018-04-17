@@ -10,7 +10,7 @@ $(document).ready(function() {
     var loser;
     var victory;
     var clicks = 0;
-    var gameLength = 10;
+    var gameLength = 2;
     var time = 20;
     var intervalId;
     var correctAns = 0;
@@ -56,14 +56,10 @@ $(document).ready(function() {
     }
 
     function displayAnswer() {
-        totalQs++;
-        if ( time === 0) {
-            clearScreen();
+        if ( time === 0 ) {
             $("#timer").html("<h3>Times Up!</h3>");
-            loser = "assets/images/loser.mpeg-4.mp4";
-            gif = $("<img>");
-            gif.attr("src", loser);
-            $("#victory").append(gif);
+            loss();
+            timeOut();
         } else if ( userGuess == correct ) {
             clearScreen();
             correctAns++;
@@ -71,26 +67,25 @@ $(document).ready(function() {
             img = $("<img>");
             img.attr("src", stewie);
             $("#victory").append(img);
-        } else if (userGuess !== correct) {
-            clearScreen();
-            loser = "assets/images/loser.mpeg-4.mp4";
-            gif = $("<img>");
-            gif.attr("src", loser);
-            $("#victory").append(gif);
-        } else {
-            clearScreen();
-            $("#victory").html("Game Over!")
+            timeOut();
+        } else if ( userGuess !== correct ) {
+            loss();
+            timeOut();
         }
-        var windowTimeout = setTimeout(function() {
-            getAPI();
-        }, 3000);
+        totalQs++;
+        if ( totalQs === gameLength ) {
+            clearScreen();
+            $("#victory").html("Game Over!<br>You Scored " + correctAns + " Out of " + totalQs);
+            clearTimeout(windowTimeout);
+        }
     }
 
     function clearScreen() {
-        $("#buttonDiv").empty();
+        $(".list-group").empty();
         $("#question").empty();
         $("#category").empty();
         $("#timer").empty();
+        choices = [];
     }
 
     function run() {
@@ -109,6 +104,22 @@ $(document).ready(function() {
 
     function stop() {
         clearInterval(intervalId);
+    }
+
+    function timeOut() {
+        var windowTimeout = setTimeout(function() {
+            getAPI();
+            time = 20;
+            run();
+        }, 3000);
+    }
+
+    function loss() {
+        clearScreen();
+        loser = "assets/images/loser.mpeg-4.mp4";
+        gif = $("<img>");
+        gif.attr("src", loser);
+        $("#victory").append(gif);
     }
     
     $("#buttonDiv").on("click", "button", function(event) {
