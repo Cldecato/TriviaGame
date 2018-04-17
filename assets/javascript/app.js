@@ -1,7 +1,7 @@
 $(document).ready(function() {
 
     var queryURL = "https://opentdb.com/api.php?amount=1&type=multiple";
-    var giphyURL = "https://api.giphy.com/v1/gifs/search?api_key=dc6zaTOxFJmzC&q=no&limit=1";
+    var giphyURL = "https://api.giphy.com/v1/gifs/random?api_key=dc6zaTOxFJmzC&tag=no";
     var noGif;
     var options = [];
     var choices = [];
@@ -25,7 +25,7 @@ $(document).ready(function() {
             url: giphyURL,
             method: "GET"
         }).then(function(response) {
-            var results = response.data[0];
+            var results = response.data;
             noGif = $("<img>");
             noGif.attr("src", results.images.fixed_height.url);
         })
@@ -49,6 +49,7 @@ $(document).ready(function() {
             for ( i = 0; i < indexChecker.length; i++) {
                 randomIndex = indexChecker[Math.floor(Math.random() * indexChecker.length)];
                 choices[randomIndex] = options[i];
+                console.log(randomIndex);
                 delete indexChecker[randomIndex];
             }
             showQuestion();
@@ -57,10 +58,6 @@ $(document).ready(function() {
         }).fail(function(err) {
             throw err;
         });
-    }
-
-    function randomize() {
-        index = Math.floor(Math.random() * 4);
     }
 
     function showQuestion() {
