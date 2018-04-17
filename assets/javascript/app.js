@@ -32,6 +32,7 @@ $(document).ready(function() {
             }
             showQuestion();
             showButtons();
+            $("#victory").empty();
         }).fail(function(err) {
             throw err;
         });
@@ -80,6 +81,9 @@ $(document).ready(function() {
             clearScreen();
             $("#victory").html("Game Over!")
         }
+        var windowTimeout = setTimeout(function() {
+            getAPI();
+        }, 3000);
     }
 
     function clearScreen() {
