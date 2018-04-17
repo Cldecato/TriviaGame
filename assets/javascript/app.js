@@ -1,8 +1,9 @@
 $(document).ready(function() {
 
     var queryURL = "https://opentdb.com/api.php?amount=1&type=multiple";
-    var giphyURL = "https://api.giphy.com/v1/gifs/search?api_key=dc6zaTOxFJmzC&q=no&limit=1&";
+    var giphyURL = "https://api.giphy.com/v1/gifs/search?api_key=dc6zaTOxFJmzC&q=no&limit=1";
     var noGif;
+    var options = [];
     var choices = [];
     var question;
     var correct;
@@ -16,17 +17,17 @@ $(document).ready(function() {
     var correctAns = 0;
     var totalQs = 0;
     var windowTimeout;
+    var index;
+    var indexChecker = [ 0, 1, 2, 3];
 
     function getGiphy() {
         $.ajax({
             url: giphyURL,
             method: "GET"
         }).then(function(response) {
-            var results = response.data;
-            console.log(results);
+            var results = response.data[0];
             noGif = $("<img>");
             noGif.attr("src", results.images.fixed_height.url);
-            console.log(noGif);
         })
     }
     getGiphy();
@@ -37,13 +38,18 @@ $(document).ready(function() {
             method: "GET",
         }).then(function(response) {
             var help = response.results[0];
-            question = help.question;
-            correct = help.correct_answer;
+            question = decodeURIComponent(help.question);
+            correct = decodeURIComponent(help.correct_answer);
             incorrect = help.incorrect_answers;
-            category = help.category;
-            choices.push(correct);
+            category = decodeURIComponent(help.category);
+            options.push(correct);
             for ( i = 0; i < incorrect.length; i++) {
-                choices.push(incorrect[i]);
+                options.push(decodeURIComponent(incorrect[i]));
+            }
+            for ( i = 0; i < indexChecker.length; i++) {
+                randomIndex = indexChecker[Math.floor(Math.random() * indexChecker.length)];
+                choices[randomIndex] = options[i];
+                delete indexChecker[randomIndex];
             }
             showQuestion();
             showButtons();
@@ -51,6 +57,10 @@ $(document).ready(function() {
         }).fail(function(err) {
             throw err;
         });
+    }
+
+    function randomize() {
+        index = Math.floor(Math.random() * 4);
     }
 
     function showQuestion() {
@@ -126,9 +136,6 @@ $(document).ready(function() {
 
     function loss() {
         clearScreen();
-        loser = "assets/images/loser.mpeg-4.mp4";
-        gif = $("<img>");
-        gif.attr("src", loser);
         $("#victory").append(noGif);
     }
 
