@@ -1,20 +1,35 @@
 $(document).ready(function() {
 
     var queryURL = "https://opentdb.com/api.php?amount=1&type=multiple";
+    var giphyURL = "https://api.giphy.com/v1/gifs/search?api_key=dc6zaTOxFJmzC&q=no&limit=1&";
+    var noGif;
     var choices = [];
     var question;
     var correct;
     var incorrect;
     var category;
     var userGuess;
-    var loser;
-    var victory;
     var clicks = 0;
-    var gameLength = 2;
+    var gameLength = 10;
     var time = 20;
     var intervalId;
     var correctAns = 0;
     var totalQs = 0;
+    var windowTimeout;
+
+    function getGiphy() {
+        $.ajax({
+            url: giphyURL,
+            method: "GET"
+        }).then(function(response) {
+            var results = response.data;
+            console.log(results);
+            noGif = $("<img>");
+            noGif.attr("src", results.images.fixed_height.url);
+            console.log(noGif);
+        })
+    }
+    getGiphy();
 
     function getAPI() {
         $.ajax({
@@ -73,11 +88,6 @@ $(document).ready(function() {
             timeOut();
         }
         totalQs++;
-        if ( totalQs === gameLength ) {
-            clearScreen();
-            $("#victory").html("Game Over!<br>You Scored " + correctAns + " Out of " + totalQs);
-            clearTimeout(windowTimeout);
-        }
     }
 
     function clearScreen() {
@@ -107,7 +117,7 @@ $(document).ready(function() {
     }
 
     function timeOut() {
-        var windowTimeout = setTimeout(function() {
+        windowTimeout = setTimeout(function() {
             getAPI();
             time = 20;
             run();
@@ -119,18 +129,40 @@ $(document).ready(function() {
         loser = "assets/images/loser.mpeg-4.mp4";
         gif = $("<img>");
         gif.attr("src", loser);
-        $("#victory").append(gif);
+        $("#victory").append(noGif);
+    }
+
+    function endGame() {
+        if ( totalQs === gameLength ) {
+            clearScreen();
+            $("#victory").html("Game Over!<br>You Scored " + correctAns + " Out of " + totalQs);
+            clearTimeout(windowTimeout);
+            restartGame();
+        }
+    }
+
+    function restartGame() {
+        totalQs = 0;
+        correctAns = 0;
+        clicks = -1;
+        var btn = $("<button>");
+        btn.attr("id", "start");
+        btn.text("Restart Game!")
+        $(".list-group").append(btn);
     }
     
     $("#buttonDiv").on("click", "button", function(event) {
         event.preventDefault();
         if ( clicks === 0 ) {
+            $("#victory").empty();
             getAPI();
             run();
         } else {
+            $("#victory").empty();
             userGuess = $(this).attr("data-name");
             displayAnswer();
             stop();
+            endGame();
         }
         clicks++
     })
