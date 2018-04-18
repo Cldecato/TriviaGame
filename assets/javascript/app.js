@@ -1,9 +1,5 @@
 $(document).ready(function() {
 
-    var queryURL = "https://opentdb.com/api.php?amount=1&type=multiple";
-    var giphyURL = "https://api.giphy.com/v1/gifs/random?api_key=dc6zaTOxFJmzC&tag=no";
-    var noGif;
-    var options = [];
     var choices = [];
     var question;
     var correct;
@@ -17,26 +13,29 @@ $(document).ready(function() {
     var correctAns = 0;
     var totalQs = 0;
     var windowTimeout;
-    var index;
-    var indexChecker = [ 0, 1, 2, 3];
 
     function getGiphy() {
+        var giphyURL = "https://api.giphy.com/v1/gifs/random?api_key=dc6zaTOxFJmzC&tag=no";
         $.ajax({
             url: giphyURL,
             method: "GET"
         }).then(function(response) {
             var results = response.data;
-            noGif = $("<img>");
+            var noGif = $("<img>");
             noGif.attr("src", results.images.fixed_height.url);
+            $("#victory").append(noGif);
         })
     }
-    getGiphy();
+    
 
     function getAPI() {
+        var queryURL = "https://opentdb.com/api.php?amount=1&type=multiple";
         $.ajax({
             url: queryURL,
             method: "GET",
         }).then(function(response) {
+            var options = [];
+            var indexChecker = [ 0, 1, 2, 3];
             var help = response.results[0];
             question = decodeURIComponent(help.question);
             correct = decodeURIComponent(help.correct_answer);
@@ -46,11 +45,11 @@ $(document).ready(function() {
             for ( i = 0; i < incorrect.length; i++) {
                 options.push(decodeURIComponent(incorrect[i]));
             }
-            for ( i = 0; i < indexChecker.length; i++) {
-                randomIndex = indexChecker[Math.floor(Math.random() * indexChecker.length)];
+            for ( i = 0; i < 4; i++) {
+                num = Math.floor(Math.random() * (indexChecker.length - 1))
+                randomIndex = indexChecker[num];
                 choices[randomIndex] = options[i];
-                console.log(randomIndex);
-                delete indexChecker[randomIndex];
+                indexChecker.splice(num, 1);
             }
             showQuestion();
             showButtons();
@@ -133,7 +132,7 @@ $(document).ready(function() {
 
     function loss() {
         clearScreen();
-        $("#victory").append(noGif);
+        getGiphy();
     }
 
     function endGame() {
